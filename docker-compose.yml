@@ -1,0 +1,30 @@
+version: "3"
+services:
+  postgres_torba:
+    image: "postgres:10-alpine"
+    restart: always
+    environment:
+      - POSTGRES_DB=test_postgres_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test_postgraph_pass
+    volumes:
+      - ./data/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+  adminer:
+    image: adminer:4
+    restart: always
+    ports:
+      - 8080:8080
+    links:
+      - postgres_torba
+  app:
+    container_name: node.api.graphql
+    restart: always
+    build: .
+    ports:
+      - "3000:3000"
+    links:
+      - postgres_torba
+    depends_on:
+      - postgres_torba
